@@ -29,6 +29,25 @@ import { AboutComponent } from './about';
 import { NoContentComponent } from './no-content';
 import { XLargeDirective } from './home/x-large';
 
+// Redux init
+import { applyMiddleware, compose, createStore } from 'redux';
+import { NgReduxModule, NgRedux } from '@angular-redux/store';
+import { createLogger } from 'redux-logger';
+import { rootReducer, IAppState } from './root.reducers';
+import { NgReduxRouterModule, NgReduxRouter } from '@angular-redux/router';
+
+const composeEnhancers =
+  typeof window === 'object' &&
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+      // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
+    }) : compose;
+
+const enhancer = composeEnhancers(
+  applyMiddleware(createLogger())
+);
+const reduxStore = createStore(rootReducer, enhancer);
+
 import '../styles/styles.scss';
 import '../styles/headings.css';
 
@@ -63,6 +82,8 @@ type StoreType = {
     BrowserModule,
     FormsModule,
     HttpModule,
+    NgReduxModule,
+    NgReduxRouterModule,
     RouterModule.forRoot(ROUTES, { useHash: true, preloadingStrategy: PreloadAllModules })
   ],
   /**
@@ -73,12 +94,18 @@ type StoreType = {
     APP_PROVIDERS
   ]
 })
+
 export class AppModule {
 
   constructor(
     public appRef: ApplicationRef,
-    public appState: AppState
-  ) {}
+    public appState: AppState,
+    ngRedux: NgRedux<IAppState>,
+    ngReduxRouter: NgReduxRouter
+  ) {
+    ngRedux.provideStore(reduxStore);
+    ngReduxRouter.initialize();
+  }
 
   public hmrOnInit(store: StoreType) {
     if (!store || !store.state) {

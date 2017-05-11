@@ -128,3 +128,7 @@ interface ErrorConstructor extends ErrorStackTraceLimit {}
 interface NodeRequireFunction extends Es6PromiseLoader  {}
 interface NodeModule extends WebpackModule {}
 interface Global extends GlobalEnvironment  {}
+
+interface Window {
+  __REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?: any;
+}
